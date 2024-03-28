@@ -10,6 +10,10 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 # Learning rate: 0.1 and 0.2 -> good
 # Iterations: 2000 or less and 1500 or less -> good
 
+# 1. to be put into main(), until first function init_params()
+# 2. for column in data.columns: 1.1) ignore first column 1.2) compute output for each subsequent attribute
+# 3. change parameters, y-label, dataset and more for further results
+
 data = pd.read_csv("ELTeC-eng-dataset_2000tok-2000mfw.csv", sep=";")
 
 data.drop(columns=['Unnamed: 0', 'idno', 'gender'], axis=1, inplace=True)  # drop unwanted columns (case 1: author)
@@ -48,8 +52,7 @@ X_train = scaler.fit_transform(X_train)
 # X_train = X_train / 255.
 _, m_train = X_train.shape
 
-print(Y_train)
-
+#print(Y_train)
 
 def init_params():
     # Case 1: authors
@@ -168,8 +171,8 @@ def conf_matrix(dev_predications, Y_dev):
 
 
 def main():
-    learning_rate = 0.1
-    iterations = 500
+    learning_rate = 0.2
+    iterations = 1000
     W1, b1, W2, b2 = gradient_descent(X_train, Y_train, learning_rate, iterations=iterations)
     #test_prediction(0, W1, b1, W2, b2)
     #test_prediction(1, W1, b1, W2, b2)
