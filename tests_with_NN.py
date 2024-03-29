@@ -16,10 +16,11 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 data = pd.read_csv("ELTeC-eng-dataset_2000tok-2000mfw.csv", sep=";")
 
+## Go through all columns, except column with index 0 and drop attributes per run now
 data.drop(columns=['Unnamed: 0', 'idno', 'gender'], axis=1, inplace=True)  # drop unwanted columns (case 1: author)
 #data.drop(columns=['Unnamed: 0', 'idno', 'author'], axis=1, inplace=True)  # drop unwanted columns (case 2: gender)
 
-data = data.iloc[:, :785]  # only include the author column and the first 784 words
+data = data.iloc[:, :2001]  # only include the author column and the first 784 words (now 2001 columns)
 author_names = data["author"].unique()  # save author names for heatmap visualization
 #gender_names = data["gender"].unique()  # save gender for heatmap visualization
 
@@ -56,7 +57,7 @@ _, m_train = X_train.shape
 
 def init_params():
     # Case 1: authors
-    W1 = np.random.rand(10, 784) - 0.5  # hidden layer has dim = 10, the number of words is 784
+    W1 = np.random.rand(10, 2000) - 0.5  # hidden layer has dim = 10, the number of words is 784 (now 2000 columns)
     b1 = np.random.rand(10, 1) - 0.5  # each node has a bias
     W2 = np.random.rand(10, 10) - 0.5  # output layer: 10 goal categories (0-9)
     b2 = np.random.rand(10, 1) - 0.5  # see b1
@@ -171,8 +172,8 @@ def conf_matrix(dev_predications, Y_dev):
 
 
 def main():
-    learning_rate = 0.2
-    iterations = 1000
+    learning_rate = 0.1
+    iterations = 500
     W1, b1, W2, b2 = gradient_descent(X_train, Y_train, learning_rate, iterations=iterations)
     #test_prediction(0, W1, b1, W2, b2)
     #test_prediction(1, W1, b1, W2, b2)
@@ -183,7 +184,7 @@ def main():
     get_accuracy(dev_predictions, Y_dev)
     # Get performance on Y_dev (i.e. test data)
     print("Test data (Accuracy): " + str(get_accuracy(dev_predictions, Y_dev)))
-    conf_matrix(dev_predictions, Y_dev)
+    #conf_matrix(dev_predictions, Y_dev)
 
 
 if __name__ == '__main__':
