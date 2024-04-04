@@ -14,47 +14,6 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 # 2. for column in data.columns: 1.1) ignore first column 1.2) compute output for each subsequent attribute
 # 3. change parameters, y-label, dataset and more for further results
 
-data = pd.read_csv("ELTeC-eng-dataset_2000tok-2000mfw.csv", sep=";")
-
-## Go through all columns, except column with index 0 and drop attributes per run now
-data.drop(columns=['Unnamed: 0', 'idno', 'gender'], axis=1, inplace=True)  # drop unwanted columns (case 1: author)
-#data.drop(columns=['Unnamed: 0', 'idno', 'author'], axis=1, inplace=True)  # drop unwanted columns (case 2: gender)
-
-data = data.iloc[:, :2001]  # only include the author column and the first 784 words (now 2001 columns)
-author_names = data["author"].unique()  # save author names for heatmap visualization
-#gender_names = data["gender"].unique()  # save gender for heatmap visualization
-
-# Mapping of the authors
-unique_authors = data['author'].unique()
-author_to_int_mapping = {author: i for i, author in enumerate(unique_authors)}
-data['author'] = data['author'].map(author_to_int_mapping)  # replace the author name with his mapping integer value
-# Mapping of the genders
-#unique_authors = data['gender'].unique()
-#author_to_int_mapping = {author: i for i, author in enumerate(unique_authors)}
-#data['gender'] = data['gender'].map(author_to_int_mapping)  # replace the gender with its mapping integer value
-
-data = np.array(data)
-m, n = data.shape
-np.random.shuffle(data)  # shuffle before splitting into dev and training sets
-
-# Scale the data
-scaler = MinMaxScaler(feature_range=(0, 1))
-
-data_dev = data[0:1000].T
-Y_dev = data_dev[0]
-X_dev = data_dev[1:n]
-X_dev = scaler.fit_transform(X_dev)
-# X_dev = X_dev / 255.
-
-data_train = data[1000:m].T
-Y_train = data_train[0]
-X_train = data_train[1:n]
-X_train = scaler.fit_transform(X_train)
-# X_train = X_train / 255.
-_, m_train = X_train.shape
-
-#print(Y_train)
-
 def init_params():
     # Case 1: authors
     W1 = np.random.rand(10, 2000) - 0.5  # hidden layer has dim = 10, the number of words is 784 (now 2000 columns)
@@ -97,7 +56,7 @@ def one_hot(Y):
     return one_hot_Y
 
 
-def backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y):
+def backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y, m, n):
     one_hot_Y = one_hot(Y)
     dZ2 = A2 - one_hot_Y
     dW2 = 1 / m * dZ2.dot(A1.T)
@@ -126,11 +85,11 @@ def get_accuracy(predictions, Y):
     return np.sum(predictions == Y) / Y.size
 
 
-def gradient_descent(X, Y, alpha, iterations):
+def gradient_descent(X, Y, m, n, alpha, iterations):
     W1, b1, W2, b2 = init_params()
     for i in range(iterations):
         Z1, A1, Z2, A2 = forward_prop(W1, b1, W2, b2, X)
-        dW1, db1, dW2, db2 = backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y)
+        dW1, db1, dW2, db2 = backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y, m, n)
         W1, b1, W2, b2 = update_params(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha)
         if i % 10 == 0:
             print("Iteration: ", i)
@@ -144,7 +103,7 @@ def make_predictions(X, W1, b1, W2, b2):
     predictions = get_predictions(A2)
     return predictions
 
-
+'''
 def test_prediction(index, W1, b1, W2, b2):
     current_image = X_train[:, index, None]
     prediction = make_predictions(X_train[:, index, None], W1, b1, W2, b2)
@@ -169,23 +128,71 @@ def conf_matrix(dev_predications, Y_dev):
     #plt.xticks(np.arange(len(gender_names)) + 0.5, gender_names, rotation=45)
     #plt.yticks(np.arange(len(gender_names)) + 0.5, gender_names, rotation=0)
     plt.show()
-
+'''
 
 def main():
-    learning_rate = 0.1
-    iterations = 500
-    W1, b1, W2, b2 = gradient_descent(X_train, Y_train, learning_rate, iterations=iterations)
-    #test_prediction(0, W1, b1, W2, b2)
-    #test_prediction(1, W1, b1, W2, b2)
-    #test_prediction(2, W1, b1, W2, b2)
-    #test_prediction(3, W1, b1, W2, b2)
 
-    dev_predictions = make_predictions(X_dev, W1, b1, W2, b2)
-    get_accuracy(dev_predictions, Y_dev)
-    # Get performance on Y_dev (i.e. test data)
-    print("Test data (Accuracy): " + str(get_accuracy(dev_predictions, Y_dev)))
-    #conf_matrix(dev_predictions, Y_dev)
+    data = pd.read_csv("ELTeC-eng-dataset_2000tok-2000mfw.csv", sep=";")
 
+    ## Go through all columns, except column with index 0 and drop attributes per run now
+    data.drop(columns=['Unnamed: 0', 'idno', 'gender'], axis=1, inplace=True)  # drop unwanted columns (case 1: author)
+    # data.drop(columns=['Unnamed: 0', 'idno', 'author'], axis=1, inplace=True)  # drop unwanted columns (case 2: gender)
+
+    data = data.iloc[:, :2001]  # only include the author column and the first 784 words (now 2001 columns)
+    author_names = data["author"].unique()  # save author names for heatmap visualization
+    # gender_names = data["gender"].unique()  # save gender for heatmap visualization
+
+    # Mapping of the authors
+    unique_authors = data['author'].unique()
+    author_to_int_mapping = {author: i for i, author in enumerate(unique_authors)}
+    data['author'] = data['author'].map(author_to_int_mapping)  # replace the author name with his mapping integer value
+    # Mapping of the genders
+    # unique_authors = data['gender'].unique()
+    # author_to_int_mapping = {author: i for i, author in enumerate(unique_authors)}
+    # data['gender'] = data['gender'].map(author_to_int_mapping)  # replace the gender with its mapping integer value
+
+    default_data = data
+    for column_index in range(1,len(data.columns)):
+        column_name = data.columns[column_index]
+        print(column_name)
+        data.drop(column_name)
+        for i in range (0,5): # repeat process five times (for debugging reasons)
+            data = np.array(data)
+            m, n = data.shape
+            np.random.shuffle(data)  # shuffle before splitting into dev and training sets
+
+            # Scale the data
+            scaler = MinMaxScaler(feature_range=(0, 1))
+
+            data_dev = data[0:1000].T
+            Y_dev = data_dev[0]
+            X_dev = data_dev[1:n]
+            X_dev = scaler.fit_transform(X_dev)
+            # X_dev = X_dev / 255.
+
+            data_train = data[1000:m].T
+            Y_train = data_train[0]
+            X_train = data_train[1:n]
+            X_train = scaler.fit_transform(X_train)
+            # X_train = X_train / 255.
+            _, m_train = X_train.shape
+
+            learning_rate = 0.1
+            iterations = 500
+            W1, b1, W2, b2 = gradient_descent(X_train, Y_train, m, n, learning_rate, iterations=iterations)
+            #test_prediction(0, W1, b1, W2, b2)
+            #test_prediction(1, W1, b1, W2, b2)
+            #test_prediction(2, W1, b1, W2, b2)
+            #test_prediction(3, W1, b1, W2, b2)
+
+            dev_predictions = make_predictions(X_dev, W1, b1, W2, b2)
+            get_accuracy(dev_predictions, Y_dev)
+            # Get performance on Y_dev (i.e. test data)
+            print("Test data (Accuracy): " + str(get_accuracy(dev_predictions, Y_dev)))
+            #conf_matrix(dev_predictions, Y_dev)
+
+        data = default_data
+        # What happens if we put all non-functional declarations into this?
 
 if __name__ == '__main__':
     main()
