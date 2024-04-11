@@ -87,6 +87,7 @@ def get_accuracy(predictions, Y):
 
 def gradient_descent(X, Y, m, n, alpha, iterations):
     W1, b1, W2, b2 = init_params()
+    train_acc = 0
     for i in range(iterations):
         Z1, A1, Z2, A2 = forward_prop(W1, b1, W2, b2, X)
         dW1, db1, dW2, db2 = backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y, m, n)
@@ -95,7 +96,8 @@ def gradient_descent(X, Y, m, n, alpha, iterations):
             print("Iteration: ", i)
             predictions = get_predictions(A2)
             print("Train data (Accuracy): " + str(get_accuracy(predictions, Y)))
-    return W1, b1, W2, b2
+            train_acc = get_accuracy(predictions, Y)
+    return W1, b1, W2, b2, train_acc
 
 
 def make_predictions(X, W1, b1, W2, b2):
@@ -156,6 +158,8 @@ def main():
         column_name = data.columns[column_index]
         print(column_name)
         data.drop(column_name)
+        avg_train_acc = 0
+        avg_test_acc = 0
         for i in range (0,5): # repeat process five times (for debugging reasons)
             data = np.array(data)
             m, n = data.shape
@@ -179,7 +183,7 @@ def main():
 
             learning_rate = 0.1
             iterations = 500
-            W1, b1, W2, b2 = gradient_descent(X_train, Y_train, m, n, learning_rate, iterations=iterations)
+            W1, b1, W2, b2, train_acc = gradient_descent(X_train, Y_train, m, n, learning_rate, iterations=iterations)
             #test_prediction(0, W1, b1, W2, b2)
             #test_prediction(1, W1, b1, W2, b2)
             #test_prediction(2, W1, b1, W2, b2)
@@ -189,10 +193,12 @@ def main():
             get_accuracy(dev_predictions, Y_dev)
             # Get performance on Y_dev (i.e. test data)
             print("Test data (Accuracy): " + str(get_accuracy(dev_predictions, Y_dev)))
-            #conf_matrix(dev_predictions, Y_dev)
-
+            # conf_matrix(dev_predictions, Y_dev) # create confusion matrix (heatmap) and show predictions
+            avg_train_acc = avg_train_acc + train_acc / i
+            avg_test_acc = avg_test_acc + get_accuracy(dev_predictions, Y_dev) / i
+        print("AVG Train Accuracy: " + avg_train_acc)
+        print("AVG Test Accuracy: " + avg_test_acc)
         data = default_data
-        # What happens if we put all non-functional declarations into this?
 
 if __name__ == '__main__':
     main()
