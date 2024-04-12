@@ -11,21 +11,17 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 # Learning rate: 0.1 and 0.2 -> good
 # Iterations: 2000 or less and 1500 or less -> good
 
-# 1. to be put into main(), until first function init_params()
-# 2. for column in data.columns: 1.1) ignore first column 1.2) compute output for each subsequent attribute
-# 3. change parameters, y-label, dataset and more for further results
-
 def init_params():
     # Case 1: authors
-    W1 = np.random.rand(10, 2000) - 0.5  # hidden layer has dim = 10, the number of words is 2000
-    b1 = np.random.rand(10, 1) - 0.5  # each node has a bias
-    W2 = np.random.rand(10, 10) - 0.5  # output layer: 10 goal categories (0-9)
-    b2 = np.random.rand(10, 1) - 0.5  # see b1
+    # W1 = np.random.rand(10, 2000) - 0.5  # hidden layer has dim = 10, the number of words is 2000
+    # b1 = np.random.rand(10, 1) - 0.5  # each node has a bias
+    # W2 = np.random.rand(10, 10) - 0.5  # output layer: 10 goal categories (0-9)
+    # b2 = np.random.rand(10, 1) - 0.5  # see b1
     # Case 2: gender
-    # W1 = np.random.rand(2, 784) - 0.5 # Modifikation: (100, 784)
-    # b1 = np.random.rand(2, 1) - 0.5 # -"- (100, 1)
-    # W2 = np.random.rand(2, 2) - 0.5 # -"- (2, 100)
-    # b2 = np.random.rand(2, 1) - 0.5
+    W1 = np.random.rand(2, 2000) - 0.5  # Modifikation: (100, 2000)
+    b1 = np.random.rand(2, 1) - 0.5  # -"- (100, 1)
+    W2 = np.random.rand(2, 2) - 0.5  # -"- (2, 100)
+    b2 = np.random.rand(2, 1) - 0.5
     return W1, b1, W2, b2
 
 
@@ -155,45 +151,45 @@ def rank_words(ranking: list, new_string, new_integer, max_length=10):
 
 def write_results_into_txt_file(final_list: list):
     # Open a new text file for writing
-    with open('top10_words.txt', 'w') as f:
+    with open('top10_words_2k2k_gender.txt', 'w') as f:
         f.write("The Top 10 most important words in the dataset are as follows:\n")
         # Write each word and accuracy to the file
         for word, accuracy in final_list[::-1]:
             f.write(f"{word}: {accuracy}\n")
 
-    print("The results have been saved in the 'top10_words.txt' file.")
+    print("The results have been saved in the 'top10_words_2k2k_gender.txt' file.")
 
 
 def main():
     data = pd.read_csv("ELTeC-eng-dataset_2000tok-2000mfw.csv", sep=";")
 
     # Preprocess the data
-    data.drop(columns=['Unnamed: 0', 'idno', 'gender'], axis=1, inplace=True)  # drop unwanted cols (case 1: author)
-    # data.drop(columns=['Unnamed: 0', 'idno', 'author'], axis=1, inplace=True)  # drop unwanted cols (case 2: gender)
+    # data.drop(columns=['Unnamed: 0', 'idno', 'gender'], axis=1, inplace=True)  # drop unwanted cols (case 1: author)
+    data.drop(columns=['Unnamed: 0', 'idno', 'author'], axis=1, inplace=True)  # drop unwanted cols (case 2: gender)
 
     data = data.iloc[:, :2001]  # only include the author column and the first 784 words (now 2001 columns)
-    author_names = data["author"].unique()  # save author names for heatmap visualization
-    # gender_names = data["gender"].unique()  # save gender for heatmap visualization
+    # author_names = data["author"].unique()  # save author names for heatmap visualization
+    gender_names = data["gender"].unique()  # save gender for heatmap visualization
 
     # Mapping of the authors
-    unique_authors = data['author'].unique()
-    author_to_int_mapping = {author: i for i, author in enumerate(unique_authors)}
-    data['author'] = data['author'].map(author_to_int_mapping)  # replace the author name with his mapping integer value
+    #unique_authors = data['author'].unique()
+    #author_to_int_mapping = {author: i for i, author in enumerate(unique_authors)}
+    #data['author'] = data['author'].map(author_to_int_mapping)  # replace the author name with his mapping integer value
     # Mapping of the genders
-    # unique_authors = data['gender'].unique()
-    # author_to_int_mapping = {author: i for i, author in enumerate(unique_authors)}
-    # data['gender'] = data['gender'].map(author_to_int_mapping)  # replace the gender with its mapping integer value
+    unique_authors = data['gender'].unique()
+    author_to_int_mapping = {author: i for i, author in enumerate(unique_authors)}
+    data['gender'] = data['gender'].map(author_to_int_mapping)  # replace the gender with its mapping integer value
 
     default_data = data
     top10_words = []
     for column_index in range(1, len(data.columns)):  # We don't count the first column (dependent variable)
         column_name = data.columns[column_index]
-        if column_index % 100 == 0:  # set milestones to view progress
+        if column_index % 10 == 0:  # set milestones to view progress
             print(column_index, column_name)
         data.drop(column_name, axis=1)
         avg_train_acc = 0
         avg_test_acc = 0
-        limit = 10  # freely adaptable
+        limit = 5  # freely adaptable
         for i in range(0, limit):  # repeat process five times (for debugging reasons)
             data = np.array(data)
             m, n = data.shape
