@@ -13,15 +13,15 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 def init_params(X):
     # Case 1: authors
-    #W1 = np.random.rand(10, X) - 0.5  # hidden layer has dim = 10, the number of words is X and user-defined
-    #b1 = np.random.rand(10, 1) - 0.5  # each node has a bias
-    #W2 = np.random.rand(10, 10) - 0.5  # output layer: 10 goal categories (author 1, ..., author 10)
-    #b2 = np.random.rand(10, 1) - 0.5  # see b1
+    W1 = np.random.rand(10, X) - 0.5  # hidden layer has dim = 10, the number of words is X and user-defined
+    b1 = np.random.rand(10, 1) - 0.5  # each node has a bias
+    W2 = np.random.rand(10, 10) - 0.5  # output layer: 10 goal categories (author 1, ..., author 10)
+    b2 = np.random.rand(10, 1) - 0.5  # see b1
     # Case 2: gender
-    W1 = np.random.rand(2, X) - 0.5  # idea: modify to (100, 2000)
-    b1 = np.random.rand(2, 1) - 0.5  # -"- (100, 1)
-    W2 = np.random.rand(2, 2) - 0.5  # -"- (2, 100)
-    b2 = np.random.rand(2, 1) - 0.5
+    # W1 = np.random.rand(2, X) - 0.5  # idea: modify to (100, 2000)
+    # b1 = np.random.rand(2, 1) - 0.5  # -"- (100, 1)
+    # W2 = np.random.rand(2, 2) - 0.5  # -"- (2, 100)
+    # b2 = np.random.rand(2, 1) - 0.5
     return W1, b1, W2, b2
 
 
@@ -51,18 +51,19 @@ def preprocess_data(filename: str, X: int, y: str):
 
 
 def start_process(X, y, data, repetitions, learning_rate, iterations):
-    default_data = data # save a copy of the dataset
-    top10_words = [] # create ranking list for words
+    # attributes_to_identify = 20 # How many best attributes should the algorithm find? Standard: 10
+    default_data = data  # save a copy of the dataset
+    top10_words = []  # create ranking list for words
     for column_index in range(1, X + 1):  # We don't count the first column (dependent variable)
         column_name = data.columns[column_index]
-        if column_index % 10 == 0: # set milestones to check progress
+        if column_index % 10 == 0:  # set milestones to check progress
             print(column_index)
-        if column_index == 10 or column_index == 20 or column_index == 50 or column_index == 100 or column_index == 200 or column_index == 500 or column_index == 1000 or column_index == 2000: # run and save user-defined tests
-            write_results_into_txt_file(top10_words, column_index, y, repetitions, learning_rate, iterations)
-        data.drop(column_name, axis=1) # delete the column temporarily
+        if column_index == 10 or column_index == 20 or column_index == 50 or column_index == 100 or column_index == 200 or column_index == 500 or column_index == 1000 or column_index == 2000:  # run and save user-defined tests
+            write_results(top10_words, column_index, y, repetitions, learning_rate, iterations)
+        data.drop(column_name, axis=1)  # delete the column temporarily
 
-        avg_train_acc = 0
-        avg_test_acc = 0
+        avg_train_acc = 0  # define a variable for the average training accuracy
+        avg_test_acc = 0  # analogous
         for i in range(0, repetitions):  # repeat process five times (for debugging reasons)
             data = np.array(data)
             m, n = data.shape
@@ -72,20 +73,21 @@ def start_process(X, y, data, repetitions, learning_rate, iterations):
             scaler = MinMaxScaler(feature_range=(0, 1))
 
             # Manage training and test set sizes
-            data_dev = data[0:350].T
+            data_dev = data[0:1000].T
             Y_dev = data_dev[0]
             X_dev = data_dev[1:n]
             X_dev = scaler.fit_transform(X_dev)
             # X_dev = X_dev / 255.
 
-            data_train = data[350:m].T
+            data_train = data[1000:m].T
             Y_train = data_train[0]
             X_train = data_train[1:n]
             X_train = scaler.fit_transform(X_train)
             # X_train = X_train / 255.
             _, m_train = X_train.shape
 
-            W1, b1, W2, b2, train_acc = gradient_descent(X, X_train, Y_train, m, n, learning_rate, iterations=iterations)
+            W1, b1, W2, b2, train_acc = gradient_descent(X, X_train, Y_train, m, n, learning_rate,
+                                                         iterations=iterations)
             # test_prediction(0, W1, b1, W2, b2)
             # test_prediction(1, W1, b1, W2, b2)
             # test_prediction(2, W1, b1, W2, b2)
@@ -103,12 +105,49 @@ def start_process(X, y, data, repetitions, learning_rate, iterations):
         avg_train_acc /= repetitions
         avg_test_acc /= repetitions
         # Rank the accuracy of the deleted word compared to all previous processed words
+        # Option 1: Rank up to 10 words (standard)
         top10_words = rank_words(top10_words, column_index, column_name,
                                  avg_train_acc)  # add word and its accuracy to ranking list
+        # Option 2: Rank up to n words (user-defined; out-comment the respective lines and define n yourself)
+        #top10_words = rank_words(top10_words, column_index, column_name,
+                                 #avg_train_acc, attributes_to_identify)
         # Insert the deleted word back into the dataset to obtain the start dataset
         data = default_data
 
-    return top10_words
+
+def classify_y_best(X, y, new_data, learning_rate, iterations):
+    data = np.array(new_data)
+    m, n = data.shape
+    np.random.shuffle(data)  # shuffle before splitting into dev and training sets
+
+    # Scale the data
+    scaler = MinMaxScaler(feature_range=(0, 1))
+
+    # Manage training and test set sizes
+    data_dev = data[0:1000].T
+    Y_dev = data_dev[0]
+    X_dev = data_dev[1:n]
+    X_dev = scaler.fit_transform(X_dev)
+    # X_dev = X_dev / 255.
+
+    data_train = data[1000:m].T
+    Y_train = data_train[0]
+    X_train = data_train[1:n]
+    X_train = scaler.fit_transform(X_train)
+    # X_train = X_train / 255.
+    _, m_train = X_train.shape
+
+    W1, b1, W2, b2, train_acc = gradient_descent(X, X_train, Y_train, m, n, learning_rate,
+                                                 iterations=iterations)
+    # test_prediction(0, W1, b1, W2, b2)
+    # test_prediction(1, W1, b1, W2, b2)
+    # test_prediction(2, W1, b1, W2, b2)
+    # test_prediction(3, W1, b1, W2, b2)
+
+    dev_predictions = make_predictions(X_dev, W1, b1, W2, b2)
+    get_accuracy(dev_predictions, Y_dev)
+    # Get performance on Y_dev (i.e. test data)
+    print("Test data (Accuracy): " + str(get_accuracy(dev_predictions, Y_dev)))
 
 
 def ReLU(Z):
@@ -229,36 +268,55 @@ def rank_words(ranking: list, new_string_index, new_string, new_integer, max_len
         ranking.append((new_string_index, (new_string, new_integer)))
 
     # Remove the first element if the data structure exceeds the specified length
-    if len(ranking) > max_length:
+    if len(ranking) > max_length+1:
         ranking.pop(0)  # Remove the first element (closest to the lowest integer value)
 
     return ranking
 
 
-def write_results_into_txt_file(final_list: list, X, y, repetitions, learning_rate, iterations):
-    dataset_name = "5k2k" # user-defined value (here: short for ELTeC-eng-dataset_5000tok-2000mfw.csv dataset)
-    s = "top10_words_" + dataset_name + "_" + str(X) + "_" + str(repetitions) + "_" + str(learning_rate) + "_" + str(iterations) + "_" + y + ".txt"
+def write_results(final_list: list, X, y, repetitions, learning_rate, iterations):
+    dataset_name = "2k2k"  # user-defined value (here: short for ELTeC-eng-dataset_2000tok-2000mfw.csv dataset)
+    s = "top10_words_" + dataset_name + "_" + str(X) + "_" + str(repetitions) + "_" + str(learning_rate) + "_" + str(
+        iterations) + "_" + y + ".txt"
 
     # Open a new text file for writing
     with open(s, 'w') as f:
-        f.write("index,word,classification_acc\n")  # write header row
+        f.write("index;word;classification_acc\n")  # write header row
         for word, accuracy in final_list[::-1]:
             f.write(f"{word};{accuracy[0]};{accuracy[1]}\n")
 
     print("The results have been saved in the a txt file.")
 
 
+def create_result_df(data, results_file, y):
+    new_data = pd.DataFrame()
+    new_data[y] = data[y].values
+    with open(results_file, "r") as f:
+        f.readline()  # Skip the first row in the txt file
+        for line in f:
+            index, word, classification_acc = line.strip().split(";")  # Split columns
+            new_data[word] = data[word].values  # Put the column with its values from the old in the new dataframe
+
+    return new_data
+
+
 def main():
-    filename = "ELTeC-eng-dataset_5000tok-2000mfw.csv"
-    X = 2000
-    y = "gender"
+    filename = "ELTeC-eng-dataset_2000tok-2000mfw.csv"
+    X = 50
+    y = "author"
     repetitions = 3
     learning_rate = 0.1
     iterations = 100
 
+    # Step 1 - Analysis: Find attribute that best classify y
+    # Hint: The computations of the attributes may take longer with higher reps and iteration values!
     data = preprocess_data(filename, X, y)
-    top10_words = start_process(X, y, data, repetitions, learning_rate, iterations)
-    #write_results_into_txt_file(top10_words)
+    start_process(X, y, data, repetitions, learning_rate, iterations)
+
+    # Step 2 - Evaluation: Run tests on a dataset that only contains best attributes to interpret test set accuracy
+    # Hint: Modify iterations and learning rate respectively! Example: learning rate: 0.1, iterations = 2000
+    #new_data = create_result_df(data, "top10_words_2k2k_10_3_0.1_100_author.txt", y)
+    #classify_y_best(attributes_to_identify, y, new_data, learning_rate, iterations)
 
 
 if __name__ == '__main__':
