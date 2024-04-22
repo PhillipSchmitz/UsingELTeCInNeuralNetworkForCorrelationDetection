@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 178;ethel;0.12327823691460056
 195;get;0.13108356290174472
 136;where;0.1421028466483012

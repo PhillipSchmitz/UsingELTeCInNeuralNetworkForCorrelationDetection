@@ -53,13 +53,15 @@ def preprocess_data(filename: str, X: int, y: str):
 def start_process(X, y, data, repetitions, learning_rate, iterations):
     # attributes_to_identify = 20 # How many best attributes should the algorithm find? Standard: 10
     default_data = data  # save a copy of the dataset
-    top10_words = []  # create ranking list for words
+    best_words = []  # create ranking list for words
     for column_index in range(1, X + 1):  # We don't count the first column (dependent variable)
         column_name = data.columns[column_index]
-        if column_index % 10 == 0:  # set milestones to check progress
+        # Set milestones to check progress (user-defined, manually)
+        if column_index % 10 == 0:
             print(column_index)
-        if column_index == 10 or column_index == 20 or column_index == 50 or column_index == 100 or column_index == 200 or column_index == 500 or column_index == 1000 or column_index == 2000:  # run and save user-defined tests
-            write_results(top10_words, column_index, y, repetitions, learning_rate, iterations)
+        # Run and save user-defined tests (user-defined, manually)
+        if column_index == 10 or column_index == 20 or column_index == 50 or column_index == 100 or column_index == 200 or column_index == 500 or column_index == 1000 or column_index == 2000:
+            write_results(best_words, column_index, y, repetitions, learning_rate, iterations)
         data.drop(column_name, axis=1)  # delete the column temporarily
 
         avg_train_acc = 0  # define a variable for the average training accuracy
@@ -106,7 +108,7 @@ def start_process(X, y, data, repetitions, learning_rate, iterations):
         avg_test_acc /= repetitions
         # Rank the accuracy of the deleted word compared to all previous processed words
         # Option 1: Rank up to 10 words (standard)
-        top10_words = rank_words(top10_words, column_index, column_name,
+        best_words = rank_words(best_words, column_index, column_name,
                                  avg_train_acc)  # add word and its accuracy to ranking list
         # Option 2: Rank up to n words (user-defined; out-comment the respective lines and define n yourself)
         #top10_words = rank_words(top10_words, column_index, column_name,
@@ -150,7 +152,7 @@ def classify_y_best(X, y, new_data, learning_rate, iterations):
     print("Test data (Accuracy): " + str(get_accuracy(dev_predictions, Y_dev)))
 
 
-def ReLU(Z):
+def ReLU(Z): # Activation function
     return np.maximum(Z, 0)
 
 
@@ -276,7 +278,7 @@ def rank_words(ranking: list, new_string_index, new_string, new_integer, max_len
 
 def write_results(final_list: list, X, y, repetitions, learning_rate, iterations):
     dataset_name = "2k2k"  # user-defined value (here: short for ELTeC-eng-dataset_2000tok-2000mfw.csv dataset)
-    s = "top10_words_" + dataset_name + "_" + str(X) + "_" + str(repetitions) + "_" + str(learning_rate) + "_" + str(
+    s = "top10_words" + dataset_name + "_" + str(X) + "_" + str(repetitions) + "_" + str(learning_rate) + "_" + str(
         iterations) + "_" + y + ".txt"
 
     # Open a new text file for writing
@@ -295,6 +297,8 @@ def create_result_df(data, results_file, y):
         f.readline()  # Skip the first row in the txt file
         for line in f:
             index, word, classification_acc = line.strip().split(";")  # Split columns
+            word = f'"{word}"'
+            print(word)
             new_data[word] = data[word].values  # Put the column with its values from the old in the new dataframe
 
     return new_data
@@ -302,7 +306,7 @@ def create_result_df(data, results_file, y):
 
 def main():
     filename = "ELTeC-eng-dataset_2000tok-2000mfw.csv"
-    X = 50
+    X = 10
     y = "author"
     repetitions = 3
     learning_rate = 0.1
@@ -311,12 +315,13 @@ def main():
     # Step 1 - Analysis: Find attribute that best classify y
     # Hint: The computations of the attributes may take longer with higher reps and iteration values!
     data = preprocess_data(filename, X, y)
-    start_process(X, y, data, repetitions, learning_rate, iterations)
+    #start_process(X, y, data, repetitions, learning_rate, iterations)
 
     # Step 2 - Evaluation: Run tests on a dataset that only contains best attributes to interpret test set accuracy
     # Hint: Modify iterations and learning rate respectively! Example: learning rate: 0.1, iterations = 2000
-    #new_data = create_result_df(data, "top10_words_2k2k_10_3_0.1_100_author.txt", y)
-    #classify_y_best(attributes_to_identify, y, new_data, learning_rate, iterations)
+    new_data = create_result_df(data, "results/eltec_2k2k/100_iter/author/top10_words_2k2k_2000_3_0.1_100_author.txt", y)
+    attributes_to_identify = 9 # (standard; adapt accordingly if you manually defined a value for this variable)
+    classify_y_best(attributes_to_identify, y, new_data, learning_rate, iterations)
 
 
 if __name__ == '__main__':

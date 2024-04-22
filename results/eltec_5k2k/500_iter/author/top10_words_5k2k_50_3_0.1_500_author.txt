@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 35;there;0.31735537190082647
 33;which;0.34765840220385674
 25;him;0.3509641873278237

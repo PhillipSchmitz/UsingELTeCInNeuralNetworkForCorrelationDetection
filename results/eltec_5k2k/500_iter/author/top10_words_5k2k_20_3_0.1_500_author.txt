@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 9;that;0.3526170798898072
 16;had;0.3674931129476584
 15;she;0.3774104683195592

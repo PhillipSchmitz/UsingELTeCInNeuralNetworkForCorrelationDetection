@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 11;was;0.15220385674931128
 12;her;0.1558769513314968
 7;in;0.15748393021120297

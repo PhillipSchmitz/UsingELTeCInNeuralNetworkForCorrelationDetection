@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 700;body;0.10927456382001836
 329;feeling;0.11570247933884298
 178;ethel;0.12327823691460056

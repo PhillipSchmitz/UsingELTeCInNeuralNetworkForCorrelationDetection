@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 257;stood;0.42286501377410474
 80;only;0.426078971533517
 420;state;0.44054178145087236

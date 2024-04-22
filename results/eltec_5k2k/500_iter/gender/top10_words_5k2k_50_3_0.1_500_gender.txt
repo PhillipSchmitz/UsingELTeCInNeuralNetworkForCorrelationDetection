@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 16;had;0.4765840220385675
 43;if;0.5190082644628099
 25;him;0.5239669421487604

@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 112;too;0.10523415977961433
 197;give;0.13663911845730028
 150;house;0.13829201101928376

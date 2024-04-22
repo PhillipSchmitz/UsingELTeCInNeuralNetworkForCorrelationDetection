@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 112;too;0.10523415977961433
 373;esther;0.11955922865013772
 409;saying;0.12066115702479337

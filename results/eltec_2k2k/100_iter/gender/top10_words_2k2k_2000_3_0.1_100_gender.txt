@@ -1,4 +1,4 @@
-index,word,classification_acc
+index;word;classification_acc
 1447;rob;0.41528925619834706
 1837;plans;0.4196510560146924
 1458;stick;0.42240587695133147
