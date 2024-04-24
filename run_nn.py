@@ -317,9 +317,9 @@ def main():
     # Step 2 - Evaluation: Run tests on a dataset that only contains best attributes to interpret test set accuracy
     # Hint: Use identical values for learning rate and iterations, but modify X respectively
     X = 2000 # Modify this value to the value of X you used in step 1 above for the most accurate evaluation
-    attributes_to_identify = 10  # (standard; adapt accordingly if you manually defined a value for this variable)
     data = preprocess_data(filename, X, y)
     new_data = create_result_df(data, "results/eltec_2k2k/100_iter/author/top10_words_2k2k_2000_3_0.1_100_author.txt", y)
+    attributes_to_identify = len(new_data.columns)  # adapt accordingly if you manually defined a value for this variable
     classify_y_best(attributes_to_identify, y, new_data, learning_rate, iterations)
 
 
