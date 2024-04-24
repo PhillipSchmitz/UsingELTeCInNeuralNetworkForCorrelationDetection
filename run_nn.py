@@ -13,15 +13,15 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 def init_params(X):
     # Case 1: authors
-    #W1 = np.random.rand(10, X) - 0.5  # hidden layer has dim = 10, the number of words is X and user-defined
-    #b1 = np.random.rand(10, 1) - 0.5  # each node has a bias
-    #W2 = np.random.rand(10, 10) - 0.5  # output layer: 10 goal categories (author 1, ..., author 10)
-    #b2 = np.random.rand(10, 1) - 0.5  # see b1
+    W1 = np.random.rand(10, X) - 0.5  # hidden layer has dim = 10, the number of words is X and user-defined
+    b1 = np.random.rand(10, 1) - 0.5  # each node has a bias
+    W2 = np.random.rand(10, 10) - 0.5  # output layer: 10 goal categories (author 1, ..., author 10)
+    b2 = np.random.rand(10, 1) - 0.5  # see b1
     # Case 2: gender
-    W1 = np.random.rand(2, X) - 0.5  # idea: modify to (100, 2000)
-    b1 = np.random.rand(2, 1) - 0.5  # -"- (100, 1)
-    W2 = np.random.rand(2, 2) - 0.5  # -"- (2, 100)
-    b2 = np.random.rand(2, 1) - 0.5
+    #W1 = np.random.rand(2, X) - 0.5  # idea: modify to (100, 2000)
+    #b1 = np.random.rand(2, 1) - 0.5  # -"- (100, 1)
+    #W2 = np.random.rand(2, 2) - 0.5  # -"- (2, 100)
+    #b2 = np.random.rand(2, 1) - 0.5
     return W1, b1, W2, b2
 
 
@@ -302,25 +302,29 @@ def create_result_df(data, results_file, y):
 
 
 def main():
-    filename = "ELTeC-eng-dataset_2000tok-2000mfw.csv"
+    filename = "ELTeC-eng-dataset_5000tok-2000mfw.csv"
     X = 10
-    y = "gender"
+    y = "author"
     repetitions = 3
     learning_rate = 0.1
     iterations = 100
 
     # Step 1 - Analysis: Find attribute that best classify y
     # Hint: The computations of the attributes may take longer with higher reps and iteration values!
-    # data = preprocess_data(filename, X, y)
-    #start_process(X, y, data, repetitions, learning_rate, iterations)
-
-    # Step 2 - Evaluation: Run tests on a dataset that only contains best attributes to interpret test set accuracy
-    # Hint: Use identical values for learning rate and iterations, but modify X respectively
-    X = 2000 # Modify this value to the value of X you used in step 1 above for the most accurate evaluation
     data = preprocess_data(filename, X, y)
-    new_data = create_result_df(data, "results/eltec_2k2k/100_iter/author/top10_words_2k2k_2000_3_0.1_100_author.txt", y)
-    attributes_to_identify = len(new_data.columns)  # adapt accordingly if you manually defined a value for this variable
-    classify_y_best(attributes_to_identify, y, new_data, learning_rate, iterations)
+    start_process(X, y, data, repetitions, learning_rate, iterations)
+
+    # Step 2.1 - Evaluation: Run tests on a dataset that only contains best attributes to interpret test set accuracy
+    # Hint: Use identical values for learning rate and iterations, but modify X respectively
+    #X = 2000 # Overwrite this value to the value of X you used in step 1 above for the most accurate evaluation
+    #data = preprocess_data(filename, X, y)
+    #new_data = create_result_df(data, "results/eltec_2k2k/100_iter/author/top10_words_2k2k_2000_3_0.1_100_author.txt", y)
+    #attributes_to_identify = len(new_data.columns)  # adapt accordingly if you manually defined a value for this variable
+    #classify_y_best(attributes_to_identify, y, new_data, learning_rate, iterations)
+
+    # Step 2.2 - Evaluation: Run tests on the initial dataset and compare it to the results from step 2.1
+    # Idea: Check, whether the accuracy is higher than before
+    #classify_y_best(X, y, data, learning_rate, iterations)
 
 
 if __name__ == '__main__':
