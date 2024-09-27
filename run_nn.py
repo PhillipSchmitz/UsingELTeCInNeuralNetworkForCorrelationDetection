@@ -11,6 +11,11 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 # Learning rate: 0.1 and 0.2 -> good
 # Iterations: 2000 or less and 1500 or less -> good
 
+# Notes (specific):
+# Idea: Stopwords removal (yet to implement!)
+# Install nltk library
+# Write program code in data preprocessing function
+
 def init_params(X):
     # Case 1: authors
     W1 = np.random.rand(10, X) - 0.5  # hidden layer has dim = 10, the number of words is X and user-defined
