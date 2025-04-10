@@ -8,4 +8,6 @@ We want to make use of Zhang's neural network and see how it performs on the ELT
 
 
 # Methodology
-The number of features in the dataset(s) are quite big and would thereby cause high computation times if used for training the network. To avoid this scenario, the first 500 features are used to run experiments with the remaining parameters (generally: train/dev splits: 60/40, learning rate: 0.1, iteration (gradient descent): 500; 1000, 2000 (optional)). A newly added function that implements a basis Backward Elimination approach, with first smaller refinements, generates the best features and model accuracy. The script computes and stepwise saves the relevant information and files for further analysis and interpretation.
+The number of features in the dataset(s) are quite big and would thereby cause high computation times if used for training the network.
+To avoid this scenario, the first 500 features are used to run experiments with the remaining parameters (generally: train/dev splits: 60/40, learning rate: 0.1, iteration (gradient descent): 500; 1000, 2000 (optional)).
+A newly added function that implements a basis Backward Elimination approach, with first smaller refinements, generates the best features and model accuracy. The script computes and stepwise saves the relevant information and files for further analysis and interpretation.
