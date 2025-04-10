@@ -4,7 +4,7 @@ The idea for this project was given in the course of a seminar in the digital hu
 The original neural network used was implemented by Samson Zhang (https://www.kaggle.com/wwsalmon) a few years ago.
 
 # Goal
-We want to make use of Zhang's neural network and see how it performs on the ELTeC dataset(s) that consists of word counts of words (features) a total of thn authors used in the book they wrote. The features are used to train and evaluate the network's classification accuracy. With the use of Backward Elimination, we want to reduce the number of features, but increase the model's performance.
+We want to make use of Zhang's neural network and see how it performs on the ELTeC dataset(s) (https://github.com/dh-trier/datasets/tree/main/tabular/eltec) that consists of word counts of words (features) a total of thn authors used in the book they wrote. The features are used to train and evaluate the network's classification accuracy. With the use of Backward Elimination, we want to reduce the number of features, but increase the model's performance.
 
 
 # Methodology
