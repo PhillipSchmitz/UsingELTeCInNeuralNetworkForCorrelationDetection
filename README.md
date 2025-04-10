@@ -1,18 +1,11 @@
 # Project
 
-The goal of this project was to check whether attributes in a pre-modified ELTeC dataset correlate with one another when fed into a neural network to predict different target attributes.
-The neural network used was implemented by Samson Zhang (https://www.kaggle.com/wwsalmon) a few years ago. 
+The idea for this project was given in the course of a seminar in the digital humanities master program at Trier University. It was part of an academic term paper.
+The original neural network used was implemented by Samson Zhang (https://www.kaggle.com/wwsalmon) a few years ago.
 
 # Goal
+We want to make use of Zhang's neural network and see how it performs on the ELTeC dataset(s) that consists of word counts of words (features) a total of thn authors used in the book they wrote. The features are used to train and evaluate the network's classification accuracy. With the use of Backward Elimination, we want to reduce the number of features, but increase the model's performance.
 
-If attributes are missing within the dataset fed to the neural network there may or may not be a decrease in accuracy, depending on their correlations with others. We want to identify those correlations and dependencies between attributes.
-In a positive case we detect a lower score indicating those excluded attributes must be important for the model to output a better value. A combination of all correlating attributes must then lead to an excellent performance of the network.
 
 # Methodology
-
-A target attribute is selected first and one attribute out of all remaining attributes is selected and excluded from the dataset that is used as input for the neural network. For each attribute several runs are undertaken to best compare the overall performance.
-The experiment ends when every attribute has been exluded once and the different performance values have been checked and compared. Ideally, the attributes that strongly correlate with others can be combined to ultimately lead to the best overall performance score.
-
-# Background
-
-The topic was proposed in the digital humanities master program at Trier University and falls under a mandatory term paper to pass the respective subject as a student. Any findings are not final and may be used for further work, if needed.
+The number of features in the dataset(s) are quite big and would thereby cause high computation times if used for training the network. To avoid this scenario, the first 500 features are used to run experiments with the remaining parameters (generally: train/dev splits: 60/40, learning rate: 0.1, iteration (gradient descent): 500; 1000, 2000 (optional)). A newly added function that implements a basis Backward Elimination approach, with first smaller refinements, generates the best features and model accuracy. The script computes and stepwise saves the relevant information and files for further analysis and interpretation.
